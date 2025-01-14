@@ -10,7 +10,7 @@ import ForgotPassword from "./ForgotPassword"
 import UpdateProfile from "./UpdateProfile"
 import Home from "./Home";
 import './App.css';
-import  Navbar from './Navbar'
+import  Navbar from './Navbar';
 
 
 function App() {
@@ -18,7 +18,10 @@ function App() {
   return (
     <>
    <Navbar/>
+   
+       
    <Container>
+    
    <div className="container" style={{ maxWidth: "400px" }}>
     
     <AuthProvider>
@@ -33,6 +36,14 @@ function App() {
     </AuthProvider>
     
    </div>
+   {/* <div className="info">
+
+<div className="image">
+     <img src=""/>
+     </div>
+<h5>Chat with me...</h5>
+     
+     </div> */}
    </Container>
 
 
