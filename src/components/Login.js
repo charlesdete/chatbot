@@ -20,7 +20,7 @@ export default function Login() {
       setLoading(true)
       await login(emailRef.current.value, passwordRef.current.value)
       console.error("Error during signup:", error.message);
-      navigate('/')
+      navigate('/Home')
     // } catch {
     //   setError("Failed to log in")
     // }
