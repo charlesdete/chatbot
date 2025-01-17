@@ -18,8 +18,8 @@ function App() {
   return (
     <>
    <Navbar/>
-   
-       
+  
+      
    <Container>
     
    <div className="container" style={{ maxWidth: "400px" }}>

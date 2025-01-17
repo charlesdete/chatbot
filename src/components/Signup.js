@@ -3,7 +3,8 @@ import React, { useRef, useState } from "react"
 import { Form, Button, Card, Alert } from "react-bootstrap"
 import { useAuth } from "../context/AuthContext"
 import { Link, useNavigate } from "react-router-dom"
-
+import {firestore} from "../firebase"
+import {addDoc, collection } from "@firebase/firestore"
 
 
 export default function Signup() {
@@ -14,9 +15,13 @@ export default function Signup() {
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
   const navigate =useNavigate()
+  const ref = collection(firestore, "Signupuser");
 
   async function handleSubmit(e) {
     e.preventDefault()
+
+
+
 
     if (passwordRef.current.value !== passwordConfirmRef.current.value) {
       return setError("Passwords do not match")
@@ -26,6 +31,21 @@ export default function Signup() {
       setError("")
       setLoading(true)
       await signup(emailRef.current.value, passwordRef.current.value)
+
+      let data = {
+        SignupUser:[
+          emailRef.current.value,
+          passwordRef.current.value
+
+      ]
+      }
+
+      try{
+        addDoc(ref, data);
+      }catch(e){
+        console.log(e);
+      }
+
       console.error("Error during signup:", error.message);
       navigate('/Dashboard')
     
