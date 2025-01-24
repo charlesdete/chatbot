@@ -1,5 +1,20 @@
+*{
+    padding:10px ;
+}
 
-
+/* .wrapper{
+height:400px;
+width: calc(100%/2);
+width: 1000px;
+padding:10px ;
+display: flex;
+align-items: center;
+justify-content: center;
+text-align: center;
+margin: auto;       
+  vertical-align: middle;
+background-color: rgb(236, 236, 241);
+} */
 .wrapper {
     margin-top: 80px;
     height: 700px;
@@ -13,7 +28,7 @@
     position: relative; /* Position relative to the viewport */
      /* Moves the wrapper 50% down the page */
     left: 50%; /* Moves the wrapper 50% to the right */
-    transform: translate(-50%, -50%); /* Centers the wrapper exactly */
+    transform: translate(-60%, -1%); /* Centers the wrapper exactly */
     background-color: rgb(236, 236, 241);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Optional for better appearance */
     border-radius: 8px; /* Optional for better aesthetics */
@@ -108,7 +123,7 @@ button:hover{
     
 }
 
-.message {
+.agent {
     max-width: 60%;
     padding: 10px;
     border-radius: 8px;
@@ -116,33 +131,13 @@ button:hover{
     word-wrap: break-word;
 }
 
-.message.incoming {
+.agent.incoming {
     align-self: flex-start;
     background-color: #f1f1f1;
     color: #000;
 }
 
-.message.outgoing {
-    align-self: flex-end;
-    background-color: #0078d4;
-    color: #fff;
-}
-
-.user {
-    max-width: 60%;
-    padding: 10px;
-    border-radius: 8px;
-    margin: 5px 0;
-    word-wrap: break-word;
-}
-
-.user.incoming {
-    align-self: flex-start;
-    background-color: #f1f1f1;
-    color: #000;
-}
-
-.user.outgoing {
+.agent.outgoing {
     align-self: flex-end;
     background-color: #0078d4;
     color: #fff;

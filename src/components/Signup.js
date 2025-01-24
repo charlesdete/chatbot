@@ -1,13 +1,14 @@
 
-import React, { useRef, useState } from "react"
+import React, { useRef, useState} from "react"
 import { Form, Button, Card, Alert } from "react-bootstrap"
 import { useAuth } from "../context/AuthContext"
-import { Link, useNavigate } from "react-router-dom"
+import {Link, useNavigate } from "react-router-dom"
 import {firestore} from "../firebase"
 import {addDoc, collection } from "@firebase/firestore"
 
 
 export default function Signup() {
+
   const emailRef = useRef()
   const passwordRef = useRef()
   const passwordConfirmRef = useRef()
@@ -15,13 +16,12 @@ export default function Signup() {
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
   const navigate =useNavigate()
-  const ref = collection(firestore, "Signupuser");
 
-  async function handleSubmit(e) {
-    e.preventDefault()
 
 
 
+  async function handleSubmit(e) {
+    e.preventDefault();
 
     if (passwordRef.current.value !== passwordConfirmRef.current.value) {
       return setError("Passwords do not match")
@@ -30,14 +30,25 @@ export default function Signup() {
     
       setError("")
       setLoading(true)
-      await signup(emailRef.current.value, passwordRef.current.value)
+
+      const response = await signup( emailRef.current.value, passwordRef.current.value)
+      if(response?.user !== "undefined" && response?.user !== null ) {
+        navigate('/Home');
+        
+
+      
+
+     }else{
+     setError(response.error.message ?? "Something went wrong!")
+      console.error(response.error)
+     }
+     const ref = collection(firestore, "Signupuser");
 
       let data = {
-        SignupUser:[
-          emailRef.current.value,
-          passwordRef.current.value
-
-      ]
+        SignupUser :{
+          email: emailRef.current.value,
+          password: passwordRef.current.value, // Avoid storing plaintext passwords in production
+      }
       }
 
       try{
@@ -45,13 +56,8 @@ export default function Signup() {
       }catch(e){
         console.log(e);
       }
-
-      console.error("Error during signup:", error.message);
+      console.error("Error during signup");
       navigate('/Dashboard')
-    
-    // } catch {
-    //   setError("Failed to create an account.Please try again!")
-    // }
 
     setLoading(false)
   }
@@ -63,7 +69,9 @@ export default function Signup() {
           <h2 className="text-center mb-4">Sign Up</h2>
           {error && <Alert variant="danger">{error}</Alert>}
           <Form onSubmit={handleSubmit}>
+         
             <Form.Group id="email">
+            
               <Form.Label>Email</Form.Label>
               <Form.Control type="email" ref={emailRef} required />
             </Form.Group>

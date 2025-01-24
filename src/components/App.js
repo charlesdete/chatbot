@@ -1,6 +1,5 @@
-import React from "react"
+import React  from "react"
 import Signup from "./Signup"
-import { Container } from "react-bootstrap"
 import { AuthProvider } from "../context/AuthContext"
 import {   Routes, Route } from "react-router-dom"
 import Login from "./Login"
@@ -11,59 +10,36 @@ import UpdateProfile from "./UpdateProfile"
 import Home from "./Home";
 import './App.css';
 import  Navbar from './Navbar';
+import Agent from "./Agent"
+import User from "./User"
 
 
-function App() {
+function App(){
+
 
   return (
-    <>
-   <Navbar/>
+  <>
+ <Navbar/>
   
-      
-   <Container>
+   <div className="container"   style={{ maxWidth: "400px"  }} >
     
-   <div className="container" style={{ maxWidth: "400px" }}>
-    
+   
     <AuthProvider>
     <Routes>
       <Route path="/home" element={<PrivateRoute><Home/></PrivateRoute>}/>
       <Route path="/Dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>}/>
-      <Route path="/Signup" element={<Signup/>}/>
-      <Route path="/login" element={<Login/>} />
+      <Route path="/Signup"  element={<Signup/>}/>
+      <Route path="/login"  element={<Login/>} />
+      <Route path="/agent"  element={<Agent/>}/>
+      <Route path="/user" element={<User/>}/>
       <Route  path="/update-profile" element={<PrivateRoute><UpdateProfile/></PrivateRoute>} />
       <Route path="/forgot-Password" element={<ForgotPassword/>}/>
     </Routes>
     </AuthProvider>
-    
    </div>
-   {/* <div className="info">
-
-<div className="image">
-     <img src=""/>
-     </div>
-<h5>Chat with me...</h5>
-     
-     </div> */}
-   </Container>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-    </>
+    
+    
+   </>
   
   )
 }

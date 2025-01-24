@@ -11,13 +11,28 @@ export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null)
   const [loading, setLoading] = useState(true)
 
-  function signup(email, password) {
-    return createUserWithEmailAndPassword(auth,email, password)
+  async function signup(email, password) {
+    try {
+      
+      const signupUser = await createUserWithEmailAndPassword(auth, email, password)
+      return {user : signupUser.user}
+    } catch (e) {
+      console.error(e)
+      return {error: e}
+    }
+
+
   }
 
-  function login(email, password) {
-    const userCredential = signInWithEmailAndPassword(auth,email, password)
-    return userCredential.user
+
+ async function login (email, password) {
+    try{
+      const userCredential = await signInWithEmailAndPassword(auth,email, password)
+      return { user: userCredential.user}
+    }catch(e){
+      console.error(e)
+      return {error: e};
+    }
   }
 
  function logout() {

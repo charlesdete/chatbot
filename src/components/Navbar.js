@@ -1,19 +1,26 @@
 import './Navbar.css'
-import React from 'react'
+import React, {useContext} from 'react'
 import { Link, useMatch, useResolvedPath } from 'react-router-dom'
+import { ThemeContext } from "../context/ThemeContext";
+
  function Navbar() {
-  
+   const { theme, toggleTheme } = useContext(ThemeContext);
   return (
   <nav className="nav">
     <Link to="/" className="site-title" >CHARLIE`S CHATBOT</Link>
   
   <ul>
+
   <CustomLink to="/home">Home</CustomLink>
     <CustomLink to="/Dashboard">Dashboard</CustomLink>
     <CustomLink to="/Signup">Sign In </CustomLink>
+    <CustomLink onClick={toggleTheme}>
+    {theme === "light" ? "Dark" : "Light"} Mode</CustomLink>
   </ul>
   </nav> ) 
 }
+
+  
 
 function CustomLink({to, children, ...props}) {
 const resolvedPath =useResolvedPath(to)
