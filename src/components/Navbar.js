@@ -1,4 +1,4 @@
-import './Navbar.css'
+import '../styles/Navbar.css'
 import React, {useContext} from 'react'
 import { Link, useMatch, useResolvedPath } from 'react-router-dom'
 import { ThemeContext } from "../context/ThemeContext";

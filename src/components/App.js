@@ -8,7 +8,7 @@ import Dashboard from "./Dashboard"
 import ForgotPassword from "./ForgotPassword"
 import UpdateProfile from "./UpdateProfile"
 import Home from "./Home";
-import './App.css';
+import '../styles/App.css';
 import  Navbar from './Navbar';
 import Agent from "./Agent"
 import User from "./User"

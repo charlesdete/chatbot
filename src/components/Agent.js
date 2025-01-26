@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react"
-import "./agent.css"
+import "../styles/agent.css"
 import {addDoc, collection, onSnapshot} from "@firebase/firestore"
-import { firestore } from "../firebase";
+import { db } from "../firebase";
 import Picker from 'emoji-picker-react';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
@@ -15,7 +15,7 @@ export default function Agent() {
 
    
 useEffect(() => {
-    const unsubscribe = onSnapshot(collection(firestore, "UserText"), (snapshot) => {
+    const unsubscribe = onSnapshot(collection(db, "UserText"), (snapshot) => {
         const agents = snapshot.docs.map((doc) => ({
                 id: doc.id,
                 text: doc.data()?.text || "No message", // Safe access
@@ -45,7 +45,7 @@ useEffect(() => {
            setAgent((prevTexts) => [...prevTexts, agentText]); 
               
                 
-          const ref = collection(firestore, "AgentText");
+          const ref = collection(db, "AgentText");
            
                 let data  ={
                     id: `${Date.now()}`,

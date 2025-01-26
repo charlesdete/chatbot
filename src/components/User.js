@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
-import "./home.css";
+import "../styles/home.css";
 import { addDoc, collection, onSnapshot } from "@firebase/firestore";
-import { firestore } from "../firebase";
+import { db } from "../firebase";
 import Picker from 'emoji-picker-react';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import EmojiButton from "./EmojiButton";
@@ -15,7 +15,7 @@ export default function User() {
 
     // Real-time Firestore listener
     useEffect(() => {
-        const unsubscribe = onSnapshot(collection(firestore, "AgentText"), (snapshot) => {
+        const unsubscribe = onSnapshot(collection(db, "AgentText"), (snapshot) => {
             const users = snapshot.docs.map((doc) => ({
                 id: doc.id,
                 text: doc.data()?.text || "No text available",
@@ -52,7 +52,7 @@ export default function User() {
 
 
         // Send message to Firestore
-        const ref = collection(firestore, "UserText");
+        const ref = collection(db, "UserText");
 
             let data ={
             id: `${Date.now()}`,

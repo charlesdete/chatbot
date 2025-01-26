@@ -1,97 +1,143 @@
-
-import React, { useRef, useState} from "react"
-import { Form, Button, Card, Alert } from "react-bootstrap"
-import { useAuth } from "../context/AuthContext"
-import {Link, useNavigate } from "react-router-dom"
-import {firestore} from "../firebase"
-import {addDoc, collection } from "@firebase/firestore"
-
+import React, { useState } from "react";
+import { useAuth } from "../context/AuthContext";
+import { Link, useNavigate } from "react-router-dom";
+import { db } from "../firebase";
+import { doc, setDoc, Timestamp } from "firebase/firestore";
 
 export default function Signup() {
+  const [firstname, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const { signup } = useAuth();
+  const navigate = useNavigate();
 
-  const emailRef = useRef()
-  const passwordRef = useRef()
-  const passwordConfirmRef = useRef()
-  const { signup } = useAuth()
-  const [error, setError] = useState("")
-  const [loading, setLoading] = useState(false)
-  const navigate =useNavigate()
-
-
-
+  function validateEmail(value) {
+    if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(value)) {
+      return true;
+    }
+    return false;
+  }
 
   async function handleSubmit(e) {
     e.preventDefault();
-
-    if (passwordRef.current.value !== passwordConfirmRef.current.value) {
-      return setError("Passwords do not match")
+    if (!validateEmail(email)) {
+      setError("Email is invalid. Please try again.");
+      return;
+    }
+    if (password != confirmPassword) {
+      setError("Passwords do not match");
+      return;
     }
 
-    
-      setError("")
-      setLoading(true)
+    setLoading(true);
 
-      const response = await signup( emailRef.current.value, passwordRef.current.value)
-      if(response?.user !== "undefined" && response?.user !== null ) {
-        navigate('/Home');
-        
+    try {
+      const response = await signup(email, password);
 
-      
+      console.log(response.user);
 
-     }else{
-     setError(response.error.message ?? "Something went wrong!")
-      console.error(response.error)
-     }
-     const ref = collection(firestore, "Signupuser");
+      let userData = {
+        userId: response.user.uid,
+        firstName: firstname,
+        lastName: lastName,
+        emailAddress: response.user.email,
+        role: "CUSTOMER",
+        accountStatus: "ACTIVE",
+        createdAt: Timestamp.fromDate(new Date()),
+        updatedAt: Timestamp.fromDate(new Date()),
+        deviceInfo: {
+          deviceType: null,
+          brwoser: null,
+        },
+        photoUrl: null,
+        chats: null,
+      };
 
-      let data = {
-        SignupUser :{
-          email: emailRef.current.value,
-          password: passwordRef.current.value, // Avoid storing plaintext passwords in production
-      }
-      }
+      await setDoc(doc(db, "users", `${response.user.uid}`), userData);
+      localStorage.setItem("user", JSON.stringify(userData));
 
-      try{
-        addDoc(ref, data);
-      }catch(e){
-        console.log(e);
-      }
-      console.error("Error during signup");
-      navigate('/Dashboard')
-
-    setLoading(false)
+      setLoading(false);
+      navigate("/Home");
+    } catch (e) {
+      setError(e.message);
+      setLoading(false);
+    }
   }
 
   return (
     <>
-      <Card>
-        <Card.Body>
-          <h2 className="text-center mb-4">Sign Up</h2>
-          {error && <Alert variant="danger">{error}</Alert>}
-          <Form onSubmit={handleSubmit}>
-         
-            <Form.Group id="email">
-            
-              <Form.Label>Email</Form.Label>
-              <Form.Control type="email" ref={emailRef} required />
-            </Form.Group>
-            <Form.Group id="password">
-              <Form.Label>Password</Form.Label>
-              <Form.Control type="password" ref={passwordRef} required />
-            </Form.Group>
-            <Form.Group id="password-confirm">
-              <Form.Label>Password Confirmation</Form.Label>
-              <Form.Control type="password" ref={passwordConfirmRef} required />
-            </Form.Group>
-            <Button disabled={loading} className="w-100" type="submit">
-              Sign Up
-            </Button>
-          </Form>
-        </Card.Body>
-      </Card>
+      {error && (
+        <div
+          style={{
+            color: "#f00",
+            fontSize: "8px",
+            backgroundColor: "#ff000033",
+          }}
+        >
+          {error}
+        </div>
+      )}
+      <div
+        style={{ display: "flex", flexDirection: "row", alignItems: "center" }}
+      >
+        <input
+          value={firstname}
+          onChange={(e) => setFirstName(e.target.value)}
+          placeholder="First Name"
+          type="text"
+          name="First Name"
+          required={true}
+        />
+        <input
+          value={lastName}
+          onChange={(e) => setLastName(e.target.value)}
+          placeholder="Last Name"
+          type="text"
+          name="Last Name"
+          required={true}
+        />
+      </div>
+      <div>
+        <input
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Email Address"
+          type="email"
+          name="email"
+          required={true}
+        />
+      </div>
+      <div>
+        <input
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Enter your password here"
+          type="password"
+          name="password"
+          required={true}
+        />
+      </div>
+      <div>
+        <input
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          placeholder="Confirm your password here"
+          type="password"
+          name="confirmPassword"
+          required={true}
+        />
+      </div>
+
+      <button disabled={loading} type="submit" onClick={(e) => handleSubmit(e)}>
+        {loading ? "Creating account..." : "Create Account"}
+      </button>
       <div className="w-100 text-center mt-2">
         Already have an account? <Link to="/login">Log In</Link>
       </div>
     </>
-  )
+  );
 }
