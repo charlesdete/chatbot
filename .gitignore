@@ -19,6 +19,7 @@
 .env.test.local
 .env.production.local
 yarn.lock
+firebase.js
 package-lock.json
 node_modules
 npm-debug.log*

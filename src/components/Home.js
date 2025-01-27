@@ -1,7 +1,6 @@
 import React, { useState, useRef } from "react";
 import "../styles/home.css";
 import Picker from "emoji-picker-react";
-import "@fortawesome/fontawesome-free/css/all.min.css";
 import {
   addDoc,
   collection,
@@ -10,33 +9,24 @@ import {
   setDoc,
   Timestamp,
 } from "@firebase/firestore";
-import { getAuth } from "firebase/auth";
 import { db } from "../firebase";
-import User from "./User";
 import EmojiButton from "./EmojiButton";
 import uuid4 from "uuid4";
+import Attachment from "./attachment";
 
 const API_KEY = process.env.REACT_API_KEY;
 
 export default function Home() {
   const [message, setMessage] = useState("Hello Customer, how may I help you?");
-  const [attachment, setAttachement] = useState(null);
+  const [attachment, setAttachment] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [chatId, setChatId] = useState("649525b2-79ca-4b5a-a794-4650206aa6b1");
+  const [chatId, setChatId] = useState(null);
 
   const [istyping, setTyping] = useState(false);
   const [isPickerVisible, setPickerVisible] = useState(false);
   const messageRef = useRef(null);
-
+  const attachmentRef = useRef(null);
   // chat with the Ai
-  const [messages, setMessages] = useState([
-    {
-      message: "Hello I am Chatgpt",
-      sentTime: "just now",
-      sender: "Chatgpt",
-      direction: "incoming",
-    },
-  ]);
 
   const sendMessage = async (event) => {
     event.preventDefault();
@@ -113,47 +103,11 @@ export default function Home() {
         console.error("Error adding document to subcollection:", error);
       }
     }
-  };
 
-  const handleSend = async (e) => {
-    e.preventDefault();
-
-    if (!messageRef.current || !messageRef.current.value.trim()) return;
-
-    const newMessage = {
-      message: messageRef.current.value,
-      sender: "user",
-      direction: "outgoing",
-      sentTime: Date.now(),
-    };
-    // all the old messages,+the new message
-    const newMessages = [...messages, newMessage];
-
-    // update our mesages state
-    setMessages(newMessages);
-
-    const auth = getAuth();
-    const user = auth.currentUser;
-    const uid = user.uid;
-
-    const ref = collection(db, "Chat");
-
-    let data = {
-      Chat: [uid, messageRef.current.value],
-    };
-
-    try {
-      addDoc(ref, data);
-    } catch (e) {
-      console.log(e);
-    }
-
-    // set  a typing indicator(chatgpt is typing)
     setTyping(true);
+    setLoading(true);
     // process message to chatgpt (send it over and see the response)
-    await processMessageToChatgpt(newMessages);
-
-    messageRef.current.value = "";
+    await processMessageToChatgpt(message);
   };
 
   const onEmojiClick = (emojiObject) => {
@@ -203,7 +157,7 @@ export default function Home() {
         const chatGptResponse =
           data?.choices?.[0]?.message?.content ||
           "Sorry, something went wrong.";
-        setMessages([
+        setMessage([
           ...chatMessages,
           {
             message: chatGptResponse,
@@ -214,28 +168,25 @@ export default function Home() {
         setTyping(false);
       });
   }
+  //input a file attachment
+  const handleFileSelect = (e) => {
+    const file = e.target.files[0];
+    setAttachment(file);
+
+    if (file) {
+      console.log("File selected:", file.name);
+    }
+  };
+  const fileSelect = () => {
+    attachmentRef.current.click();
+  };
 
   return (
     <>
       <div className="wrapper">
-        <User />
-
         <div className="wrapper-card">
           <form>
-            <div className="message-container">
-              {messages.map((msg, index) => (
-                <div
-                  key={index}
-                  className={`message ${msg.direction}`}
-                  style={{
-                    alignSelf:
-                      msg.direction === "outgoing" ? "flex-end" : "flex-start",
-                  }}
-                >
-                  <span>{msg.message}</span>
-                </div>
-              ))}
-            </div>
+            <div className="message-container"></div>
 
             {istyping && <div>ChatGPT is typing...</div>}
 
@@ -255,18 +206,36 @@ export default function Home() {
                 />
               </div>
             )}
+            <div style={{ display: "flex" }}>
+              <EmojiButton
+                color="#0b5ed7"
+                size="35px"
+                isOpened={isPickerVisible}
+                onclickCallback={() => setPickerVisible((prev) => !prev)}
+              />
 
-            <EmojiButton
-              color="#0b5ed7"
-              size="35px"
-              isOpened={isPickerVisible}
-              onclickCallback={() => setPickerVisible((prev) => !prev)}
+              <Attachment onClick={fileSelect} size="35px" />
+            </div>
+            <input
+              type="file"
+              style={{ display: "none" }}
+              ref={attachmentRef}
+              onChange={handleFileSelect}
+            />
+            {attachment && (
+              <p>
+                Selected File: <strong>{attachment.name}</strong>
+              </p>
+            )}
+            <input
+              placeholder="Chat with Ai..."
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              required
             />
 
-            <input placeholder="Chat with Ai..." ref={messageRef} required />
-
             <button className="" type="submit" onClick={sendMessage}>
-              Send
+              {loading ? "Sending message" : "Send"}
             </button>
           </form>
         </div>
