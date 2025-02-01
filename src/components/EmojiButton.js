@@ -1,6 +1,6 @@
 import React  from "react";
 
-export default function EmojiButton ({color="#333", size="48px", isOpened=(false), onclickCallback}) {
+export default function EmojiButton ({color="#333", size="35px", isOpened=(false), onclickCallback}) {
 
 return (
 <div onClick={onclickCallback} style={{cursor:"pointer"}}>

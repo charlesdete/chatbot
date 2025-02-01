@@ -12,6 +12,7 @@ import "../styles/App.css";
 import Navbar from "./Navbar";
 import Agent from "./Agent";
 import User from "./User";
+import LandingPage from "./LandingPage";
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
       <div className="container" style={{ maxWidth: "400px" }}>
         <AuthProvider>
           <Routes>
+            <Route path="/" element={<LandingPage />} />
             <Route
               path="/home"
               element={
@@ -39,8 +41,22 @@ function App() {
             />
             <Route path="/Signup" element={<Signup />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/agent" element={<Agent />} />
-            <Route path="/user" element={<User />} />
+            <Route
+              path="/agent"
+              element={
+                <PrivateRoute>
+                  <Agent />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/user"
+              element={
+                <PrivateRoute>
+                  <User />
+                </PrivateRoute>
+              }
+            />
             <Route path="/agent" element={<Agent />} />
             <Route
               path="/update-profile"

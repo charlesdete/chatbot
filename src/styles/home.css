@@ -14,7 +14,7 @@
   margin: 0 auto; /* Centers horizontally in case of additional layout constraints */
   position: relative; /* Position relative to the viewport */
   left: 50%; /* Moves the wrapper 50% to the right */
-  transform: translate(-60%, -10%); /* Centers the wrapper exactly */
+  transform: translate(-50%, 50%); /* Centers the wrapper exactly */
   background-color: rgb(236, 236, 241);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Optional for better appearance */
   border-radius: 8px; /* Optional for better aesthetics */

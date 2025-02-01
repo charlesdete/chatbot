@@ -1,8 +1,8 @@
 import React from "react";
 
 export default function Attachment({
-  height = "40px",
-  width = "40px",
+  height = "35px",
+  width = "35px",
   color = "#fff",
   onClick,
 }) {

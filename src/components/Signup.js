@@ -3,6 +3,7 @@ import { useAuth } from "../context/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
 import { db } from "../firebase";
 import { doc, setDoc, Timestamp } from "firebase/firestore";
+import "../styles/userAuth.css";
 
 export default function Signup() {
   const [firstname, setFirstName] = useState("");
@@ -70,74 +71,89 @@ export default function Signup() {
 
   return (
     <>
-      {error && (
+      <form className="form">
+        <h5>Sign up</h5>
+        {error && (
+          <div
+            style={{
+              color: "#f00",
+              fontSize: "8px",
+              backgroundColor: "#ff000033",
+            }}
+          >
+            {error}
+          </div>
+        )}
         <div
           style={{
-            color: "#f00",
-            fontSize: "8px",
-            backgroundColor: "#ff000033",
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
           }}
         >
-          {error}
+          <div className="input-shield">
+            <input
+              value={firstname}
+              onChange={(e) => setFirstName(e.target.value)}
+              placeholder="First Name"
+              type="text"
+              name="First Name"
+              required={true}
+            />
+          </div>
+          <div className="input-shield">
+            <input
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              placeholder="Last Name"
+              type="text"
+              name="Last Name"
+              required={true}
+            />
+          </div>
         </div>
-      )}
-      <div
-        style={{ display: "flex", flexDirection: "row", alignItems: "center" }}
-      >
-        <input
-          value={firstname}
-          onChange={(e) => setFirstName(e.target.value)}
-          placeholder="First Name"
-          type="text"
-          name="First Name"
-          required={true}
-        />
-        <input
-          value={lastName}
-          onChange={(e) => setLastName(e.target.value)}
-          placeholder="Last Name"
-          type="text"
-          name="Last Name"
-          required={true}
-        />
-      </div>
-      <div>
-        <input
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Email Address"
-          type="email"
-          name="email"
-          required={true}
-        />
-      </div>
-      <div>
-        <input
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Enter your password here"
-          type="password"
-          name="password"
-          required={true}
-        />
-      </div>
-      <div>
-        <input
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          placeholder="Confirm your password here"
-          type="password"
-          name="confirmPassword"
-          required={true}
-        />
-      </div>
+        <div className="input-shield">
+          <input
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Email Address"
+            type="email"
+            name="email"
+            required={true}
+          />
+        </div>
+        <div className="input-shield">
+          <input
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Enter your password here"
+            type="password"
+            name="password"
+            required={true}
+          />
+        </div>
+        <div className="input-shield">
+          <input
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            placeholder="Confirm your password here"
+            type="password"
+            name="confirmPassword"
+            required={true}
+          />
+        </div>
 
-      <button disabled={loading} type="submit" onClick={(e) => handleSubmit(e)}>
-        {loading ? "Creating account..." : "Create Account"}
-      </button>
-      <div className="w-100 text-center mt-2">
-        Already have an account? <Link to="/login">Log In</Link>
-      </div>
+        <button
+          disabled={loading}
+          type="submit"
+          onClick={(e) => handleSubmit(e)}
+        >
+          {loading ? "Creating account..." : "Create Account"}
+        </button>
+        <div className="w-100 text-center mt-2">
+          Already have an account? <Link to="/login">Log In</Link>
+        </div>
+      </form>
     </>
   );
 }
