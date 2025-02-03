@@ -10,7 +10,6 @@ import UpdateProfile from "./UpdateProfile";
 import Home from "./Home";
 import "../styles/App.css";
 import Navbar from "./Navbar";
-import Agent from "./Agent";
 import User from "./User";
 import LandingPage from "./LandingPage";
 
@@ -41,14 +40,7 @@ function App() {
             />
             <Route path="/Signup" element={<Signup />} />
             <Route path="/login" element={<Login />} />
-            <Route
-              path="/agent"
-              element={
-                <PrivateRoute>
-                  <Agent />
-                </PrivateRoute>
-              }
-            />
+
             <Route
               path="/user"
               element={
@@ -57,7 +49,6 @@ function App() {
                 </PrivateRoute>
               }
             />
-            <Route path="/agent" element={<Agent />} />
             <Route
               path="/update-profile"
               element={
@@ -72,6 +63,23 @@ function App() {
       </div>
     </>
   );
+
+  // if (!chatId) {
+  //   console.warn("No chat ID found, trying to retrieve...");
+  //   const chatsRef = collection(db, "chats");
+  //   const q = query(
+  //     chatsRef,
+  //     where("createdBy.userId", "==", userData.userId)
+  //   );
+  //   const querySnapshot = await getDocs(q);
+
+  //   if (!querySnapshot.empty) {
+  //     setChatId(querySnapshot.docs[0].id);
+  //   } else if (chatId == null) {
+  //     const uuid = uuid4();
+  //     setChatId(uuid);
+  //     localStorage.setItem("chatid", JSON.stringify(uuid));
+  //   }
 }
 
 export default App;

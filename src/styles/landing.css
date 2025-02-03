@@ -13,7 +13,7 @@ h1 {
 }
 .space {
   width: 1000px;
-  height: 600px;
+  height: 500px;
   align-items: center;
   justify-content: center;
   position: relative;
@@ -42,8 +42,10 @@ h1 {
   flex-direction: row;
 }
 .content-image {
+  margin-top: 70px;
   width: 50%;
   height: 100%;
+  padding: 20px;
 }
 .content-image img {
   width: 100%;

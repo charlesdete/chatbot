@@ -7,9 +7,8 @@ const LandingPage = () => {
   return (
     <>
       <div>
-        <h1>Welcome to our website</h1>
+        <h1>CHAT WITH US</h1>
         <div class="space">
-          <h6>CHAT WITH US</h6>
           <div class="content">
             <div class="content-button">
               <button onClick={() => navigate("/home")}>

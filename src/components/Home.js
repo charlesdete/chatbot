@@ -183,7 +183,7 @@ export default function Home() {
 
   return (
     <>
-      <div className="wrapper">
+      <div className="rapper">
         <div className="wrapper-card">
           <form>
             <div className="message-container"></div>
@@ -209,12 +209,12 @@ export default function Home() {
             <div style={{ display: "flex" }}>
               <EmojiButton
                 color="#0b5ed7"
-                size="35px"
+                size="20px"
                 isOpened={isPickerVisible}
                 onclickCallback={() => setPickerVisible((prev) => !prev)}
               />
 
-              <Attachment onClick={fileSelect} size="35px" />
+              <Attachment onClick={fileSelect} size="20px" />
             </div>
             <input
               type="file"

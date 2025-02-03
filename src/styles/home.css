@@ -2,9 +2,8 @@
   padding: 10px;
 }
 
-.wrapper {
-  margin-top: 80px;
-  height: 700px;
+.rapper {
+  height: 600px;
   width: 1000px;
   padding: 10px;
   display: flex;
@@ -14,7 +13,7 @@
   margin: 0 auto; /* Centers horizontally in case of additional layout constraints */
   position: relative; /* Position relative to the viewport */
   left: 50%; /* Moves the wrapper 50% to the right */
-  transform: translate(-50%, 50%); /* Centers the wrapper exactly */
+  transform: translate(-50%, 10%); /* Centers the wrapper exactly */
   background-color: rgb(236, 236, 241);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Optional for better appearance */
   border-radius: 8px; /* Optional for better aesthetics */
@@ -107,6 +106,10 @@ button:hover {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  overflow-y: auto;
+  flex-direction: column-reverse;
+  padding: 10px;
+  border-radius: 5px;
 }
 
 .message {
@@ -137,13 +140,13 @@ button:hover {
   display: inline-block; /* Ensure the item appears inline and wraps correctly */
 }
 
-.chatItem.CUSTOMER {
+.chatItem.user {
   align-self: flex-start; /* Align customer message to the left */
   background-color: rgb(213, 211, 211); /* Light gray background for customer */
   color: #000; /* Black text for customer */
 }
 
-.chatItem.AGENT {
+.chatItem.agent {
   align-self: flex-end; /* Align agent message to the right */
   background-color: #0078d4; /* Blue background for agent */
   color: #fff; /* White text for agent */
