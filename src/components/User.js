@@ -48,14 +48,14 @@ export default function User() {
   useEffect(() => {
     if (!chatId) return;
 
-    console.log("🔄 Listening for messages in chat:", chatId);
+    console.log(" Listening for messages in chat:", chatId);
 
     const messagesRef = collection(db, "chats", chatId, "messages");
     const messagesQuery = query(messagesRef, orderBy("timestamp", "asc"));
 
     const unsubscribe = onSnapshot(messagesQuery, (snapshot) => {
       if (snapshot.empty) {
-        console.warn("⚠️ No messages found.");
+        console.warn("No messages found.");
         return;
       }
 
@@ -268,7 +268,7 @@ export default function User() {
             </p>
           )}
           <input
-            placeholder="Chat with Agent..."
+            placeholder={`${userData.firstName} chat with an Agent...`}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             required

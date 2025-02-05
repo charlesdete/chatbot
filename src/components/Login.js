@@ -2,10 +2,13 @@ import React, { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
 import "../styles/userAuth.css";
+import { collection, doc, getDoc } from "@firebase/firestore";
+import { db } from "../firebase";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [User, setUser] = useState(null);
   const { login } = useAuth();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -31,6 +34,29 @@ export default function Login() {
     const response = await login(email, password);
 
     if (response?.user !== "undefined" && response?.user !== null) {
+      console.log(response.user.uid);
+
+      try {
+        // Reference the user document directly using doc()
+        const userDocRef = doc(db, "users", response.user.uid);
+
+        const docSnapshot = await getDoc(userDocRef);
+
+        if (docSnapshot.exists()) {
+          const theUser = docSnapshot.data(); // Extract user data
+          setUser(theUser); // Store in state
+
+          // Store in localStorage
+          localStorage.setItem("userData", JSON.stringify(theUser));
+
+          console.log("Fetched User Data:", theUser);
+        } else {
+          console.warn("No user found with this UID.");
+        }
+      } catch (e) {
+        console.error("There is an error fetching the logged-in user", e);
+      }
+
       navigate("/Home");
     } else {
       setError(response.error.message ?? "Something went wrong!");

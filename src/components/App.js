@@ -12,6 +12,7 @@ import "../styles/App.css";
 import Navbar from "./Navbar";
 import User from "./User";
 import LandingPage from "./LandingPage";
+import AgentHistory from "./AgentHistory";
 
 function App() {
   return (
@@ -35,6 +36,14 @@ function App() {
               element={
                 <PrivateRoute>
                   <Dashboard />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/history"
+              element={
+                <PrivateRoute>
+                  <AgentHistory />
                 </PrivateRoute>
               }
             />

@@ -43,6 +43,7 @@ export function AuthProvider({ children }) {
   }
 
   function logout() {
+    localStorage.removeItem("user");
     return auth.signOut();
   }
 

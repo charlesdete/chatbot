@@ -11,7 +11,7 @@ function Navbar() {
         CHARLIE`S CHATBOT
       </Link>
 
-      <ul>
+      <ul className="ul">
         <CustomLink to="/home">Ai</CustomLink>
         <CustomLink to="/user">User</CustomLink>
         <CustomLink to="/Dashboard">User Profile</CustomLink>
