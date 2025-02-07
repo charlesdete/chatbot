@@ -5,6 +5,7 @@
 }
 .history-wrapper {
   width: 500px;
+  max-height: 500px;
   padding: 10px;
   display: flex;
   align-items: center; /* Centers content vertically */
@@ -44,4 +45,11 @@ input:focus {
 }
 .output {
   padding: 10px;
+  width: 600px;
+  max-height: 400px;
+  overflow-y: auto;
+  flex-direction: column;
+}
+.list-group {
+  border-bottom: 1px solid white;
 }

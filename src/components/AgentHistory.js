@@ -2,57 +2,79 @@ import React, { useEffect, useState } from "react";
 import {
   collection,
   query,
-  where,
   orderBy,
+  getDocs,
   onSnapshot,
+  where,
 } from "@firebase/firestore";
 import { db } from "../firebase";
-import { useNavigate } from "react-router-dom";
 import "../styles/history.css";
+import { useNavigate } from "react-router-dom";
 
 export default function AgentHistory() {
-  const [history, setHistory] = useState("");
   const [chatId, setChatId] = useState(null);
-  const [mergedData, setMergedData] = useState(null);
+  const [mergedData, setMergedData] = useState({ messages: [] });
   const navigate = useNavigate();
 
-  const handleHistory = async (e) => {
-    e.preventDefault();
-
-    try {
-      const userData = JSON.parse(localStorage.getItem("user"));
-      // if (userData.role !== "AGENT") {
-      //   navigate("/login");
-      // }
-      const q = query(
-        collection(db, "chats"),
-        where("createdBy.userid", "==", "userData.userId")
-      );
-      const unsubscribe = onSnapshot(q, (snapshot) => {
-        if (!snapshot.empty) {
-          const latestChat = snapshot.docs;
-          setChatId(latestChat.id);
-          console.log(latestChat);
-        } else {
-          console.warn("No existing chats found.");
+  // 🔹 Fetch chat ID based on logged-in user
+  useEffect(() => {
+    const fetchChats = async () => {
+      try {
+        const userData = JSON.parse(localStorage.getItem("user"));
+        if (!userData || !userData.userId) {
+          console.warn("User ID not found in localStorage.");
+          return;
         }
-      });
 
-      return () => unsubscribe();
-    } catch (e) {
-      console.error(e);
-      console.log("There was an error finding the chats!");
-    }
+        console.log("Fetching chats for User ID:", userData.userId);
 
-    try {
-      if (!chatId) return;
+        // Query to get chats for the logged-in user
+        const q = query(
+          collection(db, "chats"),
+          where("createdBy.userId", "==", userData.userId) // Use the nested userId
+        );
 
-      console.log(" Listening for messages in chat:", chatId);
+        const querySnapshot = await getDocs(q);
 
-      const messagesRef = collection(db, "chats", chatId, "messages");
-      const messagesQuery = query(messagesRef, orderBy("timestamp", "asc"));
+        // Check if chats are found
+        if (querySnapshot.empty) {
+          console.warn("No chats found for this user.");
+          return;
+        }
 
-      const unsubscribe = onSnapshot(messagesQuery, (snapshot) => {
+        // Log the fetched documents
+        querySnapshot.forEach((doc) => {
+          console.log(doc.id, " => ", doc.data());
+        });
+
+        // Get the first chat document (you may want to adjust this logic if needed)
+        const latestChatDoc = querySnapshot.docs[0];
+        const latestChat = latestChatDoc.data(); // Get chat data
+
+        setChatId(latestChatDoc.id);
+        console.log("Chat ID:", latestChatDoc.id);
+      } catch (error) {
+        console.error("Error fetching chats:", error);
+      }
+    };
+
+    fetchChats(); // Call fetchChats when component mounts
+  }, []);
+
+  console.log(chatId);
+
+  // 🔹 Fetch messages linked to the chat ID
+  useEffect(() => {
+    if (!chatId) return;
+
+    console.log("Listening for messages in chat:", chatId);
+
+    const messagesRef = collection(db, "chats", chatId, "messages");
+    const messagesQuery = query(messagesRef, orderBy("timestamp", "asc"));
+
+    const unsubscribe = onSnapshot(
+      messagesQuery,
+      (snapshot) => {
         if (snapshot.empty) {
           console.warn("No messages found.");
           return;
@@ -65,75 +87,52 @@ export default function AgentHistory() {
 
         console.log("New Messages Received:", newMessages);
 
-        // Correctly update state without overriding previous messages
-        setMergedData((prev) => {
-          const updatedChat = { ...prev[0], messages: newMessages };
-          return [updatedChat];
-        });
-      });
+        setMergedData((prev) => ({
+          ...prev,
+          messages: newMessages,
+        }));
+      },
+      (error) => {
+        console.error("Error fetching messages:", error);
+      }
+    );
 
-      return () => unsubscribe();
-    } catch (e) {
-      console.error(e);
-      console.log("There was an error fetching the messages!");
-    }
-  };
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
+  }, [chatId]);
 
   const userData = JSON.parse(localStorage.getItem("user"));
   return (
     <div className="history-wrapper">
-      <form onSubmit={handleHistory}>
-        <div className="containerRap">
-          <div className="agent-details">
-            <h3>charlie</h3>
-          </div>
-          <div className="inputRap">
-            <input
-              placeholder=""
-              value={history}
-              onChange={(e) => setHistory(e.target.value)}
-            />
-            <button type="submit">Search</button>
-          </div>
-        </div>
-
-        <div className="output">
-          {mergedData?.messages?.length > 0 ? (
-            mergedData.messages.map((message) => {
-              console.log(" Rendering Message:", message);
-
-              return (
-                <div class="list-group">
-                  <a
-                    href="#"
-                    class="list-group-item list-group-item-action active"
-                    aria-current="true"
-                  >
-                    <div class="d-flex w-100 justify-content-between">
-                      <h5 class="mb-1">List group item heading</h5>
-                      <small>3 days ago</small>
-                    </div>
-                    <p class="mb-1">Some placeholder content in a paragraph.</p>
-                    <small>And some small print.</small>
-                  </a>
-                  <a href="#" class="list-group-item list-group-item-action">
-                    <div class="d-flex w-100 justify-content-between">
-                      <h5 class="mb-1">List group item heading</h5>
-                      <small class="text-muted">3 days ago</small>
-                    </div>
-                    <p class="mb-1">Some placeholder content in a paragraph.</p>
-                    <small class="text-muted">
-                      And some muted small print.
-                    </small>
-                  </a>
+      <div className="output">
+        <h5>Chat History</h5>
+        {mergedData.messages.length > 0 ? (
+          <div className="list-group">
+            {mergedData.messages.map((message) => (
+              <a
+                key={message.id}
+                href="#"
+                className="list-group-item list-group-item-action "
+              >
+                <div className="d-block w-600 justify-content-between">
+                  <h5 className="mb-1">{message.text}</h5>
+                  <small>
+                    {message.timestamp?.seconds
+                      ? new Date(
+                          message.timestamp.seconds * 1000
+                        ).toLocaleString()
+                      : "No timestamp"}
+                  </small>
                 </div>
-              );
-            })
-          ) : (
-            <p> No chats history available</p>
-          )}
-        </div>
-      </form>
+                <p className="mb-1">{userData.firstName || "Unknown sender"}</p>
+              </a>
+            ))}
+          </div>
+        ) : (
+          <p>No chat history available</p>
+        )}
+      </div>
     </div>
   );
 }

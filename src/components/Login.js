@@ -47,7 +47,7 @@ export default function Login() {
           setUser(theUser); // Store in state
 
           // Store in localStorage
-          localStorage.setItem("userData", JSON.stringify(theUser));
+          localStorage.setItem("user", JSON.stringify(theUser));
 
           console.log("Fetched User Data:", theUser);
         } else {
