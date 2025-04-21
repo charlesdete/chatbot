@@ -13,21 +13,24 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  function validateEmail(value) {
-    if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(value)) {
-      return true;
-    }
-    return false;
-  }
+  const validateEmail = (email) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+  };
+
+  const validatePassword = (password) => {
+    const regex = /^(?=.*\d).{6,}$/;
+    return regex.test(password);
+  };
 
   async function handleSubmit(e) {
     e.preventDefault();
 
-    if (validateEmail(email) == false) {
+    if (!validateEmail(email)) {
       setError("Email is invalid. Please try again.");
       return;
     }
-    if (validateEmail(password) == false) {
+    if (!validatePassword(password)) {
       setError("Password is invalid. Please try again.");
       return;
     }
@@ -37,7 +40,7 @@ export default function Login() {
     const response = await login(email, password);
     console.log(response);
 
-    if (response?.user !== "undefined" && response?.user !== null) {
+    if (response?.user) {
       try {
         // Reference the user document directly using doc()
         const userDocRef = doc(db, "users", response.user.uid);
@@ -70,7 +73,7 @@ export default function Login() {
 
   return (
     <>
-      <form className="form">
+      <form className="form" onSubmit={handleSubmit}>
         <h5>Sign in</h5>
         {error && (
           <div
@@ -109,7 +112,6 @@ export default function Login() {
           style={{ width: "200px", height: "40px", borderRadius: "10px" }}
           disabled={loading}
           type="submit"
-          onClick={(e) => handleSubmit(e)}
         >
           {loading ? (
             <svg
