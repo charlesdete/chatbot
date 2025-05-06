@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
 import "../styles/profile.css";
 import Profile from "./camera";
+import user from "../components/images/user.png";
 
 export default function Dashboard() {
   const [error, setError] = useState("");
@@ -43,10 +44,7 @@ export default function Dashboard() {
         <h2 className="text-center mb-4">Profile</h2>
         <div className="profile-pic">
           <div className="outline-pic">
-            <img
-              src={pic ? URL.createObjectURL(pic) : "/default.png"}
-              alt="Profile"
-            />
+            <img src={pic ? URL.createObjectURL(pic) : user} />
           </div>
 
           <input
