@@ -1,11 +1,16 @@
-import React, { useState } from "react";
-import { Card, Button, Alert } from "react-bootstrap";
+import React, { useRef, useState } from "react";
+import { Alert } from "react-bootstrap";
 import { useAuth } from "../context/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
+import "../styles/profile.css";
+import Profile from "./camera";
 
 export default function Dashboard() {
   const [error, setError] = useState("");
   const { currentUser, logout } = useAuth();
+  const [pic, setPic] = useState(null);
+  const picRef = useRef();
+
   const navigate = useNavigate();
 
   async function handleLogout() {
@@ -19,10 +24,39 @@ export default function Dashboard() {
     }
   }
 
+  function handleProfilePic(e) {
+    e.preventDefault();
+    const file = e.target.files[0];
+    setPic(file);
+
+    if (file) {
+      console.log("File selected:", file.name);
+    }
+  }
+  const fileSelect = () => {
+    picRef.current.click();
+  };
+
   return (
     <>
       <form className="form">
         <h2 className="text-center mb-4">Profile</h2>
+        <div className="profile-pic">
+          <div className="outline-pic">
+            <img
+              src={pic ? URL.createObjectURL(pic) : "/default.png"}
+              alt="Profile"
+            />
+          </div>
+
+          <input
+            type="file"
+            style={{ display: "none" }}
+            ref={picRef}
+            onChange={handleProfilePic}
+          />
+        </div>
+        <Profile onClick={fileSelect} size="20px" color="#000" padding="10px" />
         {error && <Alert variant="danger">{error}</Alert>}
         <strong>Email:</strong> {currentUser.email}
         <Link to="/update-profile" className="btn btn-primary w-100 mt-3">

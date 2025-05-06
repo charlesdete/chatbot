@@ -234,7 +234,12 @@ export default function Home() {
               required
             />
 
-            <button className="" type="submit" onClick={sendMessage}>
+            <button
+              className=""
+              type="submit"
+              onClick={sendMessage}
+              style={{ borderRadius: "10px" }}
+            >
               {loading ? "Sending message" : "Send"}
             </button>
           </form>

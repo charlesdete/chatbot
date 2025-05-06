@@ -9,12 +9,11 @@ import {
 } from "@firebase/firestore";
 import { db } from "../firebase";
 import "../styles/history.css";
-import { useNavigate } from "react-router-dom";
 
 export default function AgentHistory() {
   const [chatId, setChatId] = useState(null);
   const [mergedData, setMergedData] = useState({ messages: [] });
-  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   // 🔹 Fetch chat ID based on logged-in user
   useEffect(() => {
@@ -52,6 +51,7 @@ export default function AgentHistory() {
         const latestChat = latestChatDoc.data(); // Get chat data
 
         setChatId(latestChatDoc.id);
+        setLoading(true);
         console.log("Chat ID:", latestChatDoc.id);
       } catch (error) {
         console.error("Error fetching chats:", error);
@@ -130,7 +130,9 @@ export default function AgentHistory() {
             ))}
           </div>
         ) : (
-          <p>No chat history available</p>
+          <p>
+            {loading ? "loading chat history..." : "No chat history available"}
+          </p>
         )}
       </div>
     </div>

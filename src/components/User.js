@@ -4,7 +4,9 @@ import {
   addDoc,
   collection,
   doc,
+  getDocs,
   query,
+  limit,
   orderBy,
   setDoc,
   Timestamp,
@@ -28,70 +30,142 @@ export default function User() {
   const [mergedData, setMergedData] = useState([]);
   const [message, setMessage] = useState("");
 
+  const userData = JSON.parse(localStorage.getItem("user"));
+  // 1. CUSTOMER: create or get existing chat
   useEffect(() => {
-    const userData = JSON.parse(localStorage.getItem("user"));
+    if (!userData?.userId || !userData.role) return;
 
-    const chatsQuery = query(collection(db, "chats"));
+    const fetchChat = async () => {
+      // if (userData.role === "CUSTOMER") {
+      //   const customerChatsQuery = query(
+      //     collection(db, "chats"),
+      //     where("createdBy.userId", "==", userData.userId)
+      //   );
+      //   const snapshot = await getDocs(customerChatsQuery);
+      //   if (!snapshot.empty) {
+      //     setChatId(snapshot.docs[0].id); // use existing chat
+      //   } else {
+      //     const newChatId = uuid4();
+      //     await setDoc(doc(db, "chats", newChatId), {
+      //       createdBy: {
+      //         userId: userData.userId,
+      //         firstName: userData.firstName,
+      //         lastName: userData.lastName,
+      //         role: userData.role,
+      //         photoUrl: userData.photoUrl,
+      //       },
+      //       agentInfo: null,
+      //       status: "UNASSIGNED",
+      //       createdAt: Timestamp.now(),
+      //     });
+      //     setChatId(newChatId);
+      //   }
+      // }
+      // // 2. AGENT: find unassigned chat and join
+      // if (userData.role === "AGENT") {
+      //   const unassignedChatsQuery = query(
+      //     collection(db, "chats"),
+      //     where("createdBy.userId", "==", userData.userId)
+      //   );
+      //   const snapshot = await getDocs(unassignedChatsQuery);
+      //   if (!snapshot.empty) {
+      //     const targetChat = snapshot.docs[0];
+      //     const chatRef = doc(db, "chats", targetChat.id);
+      //     // Assign agent to chat
+      //     await updateDoc(chatRef, {
+      //       agentInfo: {
+      //         agentId: userData.userId,
+      //         firstName: userData.firstName,
+      //         lastName: userData.lastName,
+      //         startTime: Timestamp.now(),
+      //       },
+      //       status: "ASSIGNED",
+      //     });
+      //     setChatId(targetChat.id);
+      //   } else {
+      //     console.warn("No unassigned chats found.");
+      //   }
+      // }
+      const chatsRef = collection(db, "chats");
+      const oldestChatQuery = query(
+        chatsRef,
+        orderBy("createdAt", "asc"),
+        limit(1)
+      );
 
-    const unsubscribe = onSnapshot(chatsQuery, (snapshot) => {
+      const snapshot = await getDocs(oldestChatQuery);
+
       if (!snapshot.empty) {
-        const latestChat = snapshot.docs[0];
-        setChatId(latestChat.id);
+        const chat = snapshot.docs[0];
+        console.log("Topmost (oldest) chat:", chat.id, chat.data());
+        setChatId(snapshot.docs[0].id);
+        return chat;
       } else {
-        console.warn("No existing chats found.");
+        console.log("No chats found");
+        return null;
       }
-    });
+    };
 
-    return () => unsubscribe();
-  }, []);
+    fetchChat();
+  }, [userData]);
 
+  // 3. Listen to messages in real-time
   useEffect(() => {
     if (!chatId) return;
-
-    console.log(" Listening for messages in chat:", chatId);
 
     const messagesRef = collection(db, "chats", chatId, "messages");
     const messagesQuery = query(messagesRef, orderBy("timestamp", "asc"));
 
     const unsubscribe = onSnapshot(messagesQuery, (snapshot) => {
-      if (snapshot.empty) {
-        console.warn("No messages found.");
-        return;
-      }
-
       const newMessages = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
 
-      console.log("New Messages Received:", newMessages);
-
-      // Correctly update state without overriding previous messages
-      setMergedData((prev) => {
-        const updatedChat = { ...prev[0], messages: newMessages };
-        return [updatedChat];
-      });
+      setMergedData([{ messages: newMessages }]);
     });
 
     return () => unsubscribe();
   }, [chatId]);
 
-  // Handle sending a message
   const handleText = async (e) => {
     e.preventDefault();
 
-    const userData = JSON.parse(localStorage.getItem("user"));
-    console.log("User data from local storage", userData);
+    if (chatId) {
+      const chatDocRef = doc(db, "chats", chatId);
+      const messagesSubcollectionRef = collection(chatDocRef, "messages");
 
-    if (!chatId) {
-      // Create a new chat if it doesn`t exist
+      try {
+        if (userData.role !== "CUSTOMER") {
+          await updateDoc(chatDocRef, {
+            agentInfo: {
+              agentId: userData.userId,
+              firstName: userData.firstName,
+              lastName: userData.firstName,
+              startTime: Timestamp.fromDate(new Date()),
+            },
+          });
+        }
+
+        const messageDocRef = await addDoc(messagesSubcollectionRef, {
+          attachmentUrl: attachment,
+          senderId: userData.userId,
+          isDelivered: false,
+          isRead: false,
+          text: message,
+          timestamp: Timestamp.fromDate(new Date()),
+        });
+
+        console.log("Message sent. ID:", messageDocRef.id);
+      } catch (error) {
+        console.error("Error sending message:", error);
+      }
+    } else {
       const uuid = uuid4();
       setChatId(uuid);
 
       try {
-        console.log("creating a new chat with ID: ", uuid);
-        // Step 1: Create the parent document in the "users" collection
-        const chatDocRef = doc(db, "chats", `${uuid}`);
+        const chatDocRef = doc(db, "chats", uuid);
         await setDoc(chatDocRef, {
           agentInfo: null,
           createdBy: {
@@ -104,41 +178,8 @@ export default function User() {
           status: "UNASSIGNED",
           createdAt: Timestamp.fromDate(new Date()),
         });
-        console.log("Chat document created!", uuid);
-        console.log(userData.firstName);
+
         setTypingUser(userData.firstName);
-        // Step 2: Reference the "messages" subcollection inside the parent document
-        const messagesSubcollectionRef = collection(chatDocRef, "messages");
-
-        // Step 3: Add a document to the "messages" subcollection
-        const messageDocRef = await addDoc(messagesSubcollectionRef, {
-          attachmentUrl: attachment,
-          senderId: userData.userId,
-          isDelivered: false,
-          isRead: false,
-          text: message,
-          timestamp: Timestamp.fromDate(new Date()),
-        });
-
-        console.log("Message added to chat with an ID:", messageDocRef.id);
-      } catch (error) {
-        console.error("Error creating a new message in the chat", error);
-      }
-    } else {
-      console.log("updating an existing chat", chatId);
-      try {
-        const chatDocRef = doc(db, "chats", chatId);
-        if (userData.role != "CUSTOMER") {
-          await updateDoc(chatDocRef, {
-            agentInfo: {
-              agentId: userData.userId,
-              firstName: userData.firstName,
-              lastName: userData.firstName,
-              startTime: Timestamp.fromDate(new Date()),
-            },
-          });
-          console.log("Agent info updated successfully.");
-        }
 
         const messagesSubcollectionRef = collection(chatDocRef, "messages");
         const messageDocRef = await addDoc(messagesSubcollectionRef, {
@@ -150,81 +191,75 @@ export default function User() {
           timestamp: Timestamp.fromDate(new Date()),
         });
 
-        console.log("Message sent. Sub-collection ID:", messageDocRef.id);
+        console.log(
+          "New chat created and message added. ID:",
+          messageDocRef.id
+        );
       } catch (error) {
-        console.error("Error adding document to subcollection:", error);
+        console.error("Error creating new chat:", error);
       }
     }
 
     setMessage("");
     setAttachment(null);
-
-    // Simulate agent typing
     setTyping(true);
     setLoading(true);
-    setTimeout(() => setTyping(false), 1000); // Simulate 1-second typing delay
+    setTimeout(() => setTyping(false), 1000);
     setTimeout(() => setLoading(false), 1000);
   };
 
   const onEmojiClick = (emojiObject) => {
-    setMessage((prevValue) => prevValue + emojiObject.emoji); // Append emoji to the input value
+    setMessage((prevValue) => prevValue + emojiObject.emoji);
   };
 
-  // Run when chatId changes
-
-  //input a file attachment
   const handleFileSelect = (e) => {
     const file = e.target.files[0];
-    setAttachment(file);
-
     if (file) {
-      console.log("File selected:", file.name);
+      const url = URL.createObjectURL(file);
+      setAttachment(url);
     }
   };
+
   const fileSelect = () => {
     attachmentRef.current.click();
   };
 
-  const userData = JSON.parse(localStorage.getItem("user")) || {};
   return (
     <div className="rapper">
       <div className="wrapper-card">
         <form onSubmit={handleText}>
           <div className="message-container">
             {mergedData?.[0]?.messages?.length > 0 ? (
-              mergedData[0].messages.map((message) => {
-                console.log(" Rendering Message:", message);
-                return (
-                  <div
-                    key={message.id}
-                    className={`chatItem ${
-                      message.senderId === String(userData.userId)
-                        ? "user"
-                        : "agent"
-                    }`}
-                    style={{
-                      alignSelf:
-                        userData.userId === message.senderId
-                          ? "flex-end"
-                          : "flex-start",
-                    }}
-                  >
-                    <span>{message.text || "No text"}</span>{" "}
-                    <small>
-                      {message.timestamp?.seconds
-                        ? new Date(
-                            message.timestamp.seconds * 1000
-                          ).toLocaleTimeString("en-GB", {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })
-                        : "Unknown Time"}
-                    </small>
-                  </div>
-                );
-              })
+              mergedData[0].messages.map((message) => (
+                <div
+                  key={message.id}
+                  className={`chatItem ${
+                    message.senderId === String(userData.userId)
+                      ? "user"
+                      : "agent"
+                  }`}
+                  style={{
+                    alignSelf:
+                      message.senderId === userData.userId
+                        ? "flex-end"
+                        : "flex-start",
+                  }}
+                >
+                  <span>{message.text || "No text"}</span>
+                  <small>
+                    {message.timestamp?.seconds
+                      ? new Date(
+                          message.timestamp.seconds * 1000
+                        ).toLocaleTimeString("en-GB", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })
+                      : "Unknown Time"}
+                  </small>
+                </div>
+              ))
             ) : (
-              <p> No messages available</p>
+              <p>No messages available</p>
             )}
           </div>
 
@@ -246,6 +281,7 @@ export default function User() {
               />
             </div>
           )}
+
           <div style={{ display: "flex" }}>
             <EmojiButton
               color="#0b5ed7"
@@ -253,20 +289,22 @@ export default function User() {
               isOpened={isPickerVisible}
               onclickCallback={() => setPickerVisible((prev) => !prev)}
             />
-
             <Attachment onClick={fileSelect} size="35px" />
           </div>
+
           <input
             type="file"
             style={{ display: "none" }}
             ref={attachmentRef}
             onChange={handleFileSelect}
           />
+
           {attachment && (
             <p>
               Selected File: <strong>{attachment.name}</strong>
             </p>
           )}
+
           <input
             placeholder={`${userData.firstName} chat with an Agent...`}
             value={message}
@@ -274,7 +312,9 @@ export default function User() {
             required
           />
 
-          <button type="submit">{loading ? "Sending" : "Send"}</button>
+          <button type="submit" style={{ borderRadius: "10px" }}>
+            {loading ? "Sending" : "Send"}
+          </button>
         </form>
       </div>
     </div>

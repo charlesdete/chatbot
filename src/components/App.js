@@ -13,6 +13,7 @@ import Navbar from "./Navbar";
 import User from "./User";
 import LandingPage from "./LandingPage";
 import AgentHistory from "./AgentHistory";
+import Admin from "./Admin";
 
 function App() {
   return (
@@ -24,7 +25,7 @@ function App() {
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route
-              path="/home"
+              path="/Home"
               element={
                 <PrivateRoute>
                   <Home />
@@ -40,7 +41,15 @@ function App() {
               }
             />
             <Route
-              path="/history"
+              path="/Admin"
+              element={
+                <PrivateRoute>
+                  <Admin />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/History"
               element={
                 <PrivateRoute>
                   <AgentHistory />

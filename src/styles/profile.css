@@ -1,0 +1,30 @@
+.profile-pic {
+  height: 100px;
+  width: 100px;
+  padding: 10px;
+  border-radius: 50%;
+  background-color: rgb(236, 236, 241);
+}
+.outline-pic {
+  background-color: rgb(236, 236, 241);
+  border: 1px solid #fff;
+  padding: 5px;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  border-radius: 50%;
+  /* cursor: pointer; */
+}
+.outline-pic:hover {
+  border: 2px solid #fff;
+}
+
+img {
+  justify-content: center;
+  align-items: center;
+
+  height: 100%;
+  width: 100%;
+  border-radius: 50%;
+}
