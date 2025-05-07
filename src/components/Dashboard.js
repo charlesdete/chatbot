@@ -26,7 +26,6 @@ export default function Dashboard() {
   }
 
   function handleProfilePic(e) {
-    e.preventDefault();
     const file = e.target.files[0];
     setPic(file);
 
@@ -40,36 +39,43 @@ export default function Dashboard() {
 
   return (
     <>
-      <form className="form">
-        <h2 className="text-center mb-4">Profile</h2>
-        <div className="profile-pic">
-          <div className="outline-pic">
-            <img src={pic ? URL.createObjectURL(pic) : user} />
-          </div>
+      <div className="container">
+        <form className="form">
+          <h2 className="text-center mb-4">Profile</h2>
+          <div className="profile-pic">
+            <div className="outline-pic">
+              <img src={pic ? URL.createObjectURL(pic) : user} />
+            </div>
 
-          <input
-            type="file"
-            style={{ display: "none" }}
-            ref={picRef}
-            onChange={handleProfilePic}
+            <input
+              type="file"
+              style={{ display: "none" }}
+              ref={picRef}
+              onChange={handleProfilePic}
+            />
+          </div>
+          <Profile
+            onClick={fileSelect}
+            size="20px"
+            color="#000"
+            padding="10px"
           />
-        </div>
-        <Profile onClick={fileSelect} size="20px" color="#000" padding="10px" />
-        {error && <Alert variant="danger">{error}</Alert>}
-        <strong>Email:</strong> {currentUser.email}
-        <Link to="/update-profile" className="btn btn-primary w-100 mt-3">
-          Update Profile
-        </Link>
-        <div className="text-center mt-2">
-          <button
-            style={{ width: "200px", height: "40px", borderRadius: "10px" }}
-            variant="link"
-            onClick={handleLogout}
-          >
-            Log Out
-          </button>
-        </div>
-      </form>
+          {error && <Alert variant="danger">{error}</Alert>}
+          <strong>Email:</strong> {currentUser.email}
+          <Link to="/update-profile" className="btn btn-primary w-100 mt-3">
+            Update Profile
+          </Link>
+          <div className="text-center mt-2">
+            <button
+              style={{ width: "200px", height: "40px", borderRadius: "10px" }}
+              variant="link"
+              onClick={handleLogout}
+            >
+              Log Out
+            </button>
+          </div>
+        </form>
+      </div>
     </>
   );
 }

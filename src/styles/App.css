@@ -9,3 +9,6 @@ body.dark {
   background-color: #888686c6;
   color: #ffffff;
 }
+.container {
+  padding-bottom: 80px;
+}

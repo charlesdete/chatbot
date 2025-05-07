@@ -6,7 +6,7 @@ const LandingPage = () => {
 
   return (
     <>
-      <div>
+      <div className="space-container">
         <h1>CHAT WITH US</h1>
         <div class="space">
           <div class="content">

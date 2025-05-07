@@ -14,6 +14,7 @@ import User from "./User";
 import LandingPage from "./LandingPage";
 import AgentHistory from "./AgentHistory";
 import Admin from "./Admin";
+import Footer from "./footer";
 
 function App() {
   return (
@@ -79,6 +80,8 @@ function App() {
           </Routes>
         </AuthProvider>
       </div>
+
+      <Footer />
     </>
   );
 
