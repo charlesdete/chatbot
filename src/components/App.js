@@ -84,23 +84,6 @@ function App() {
       <Footer />
     </>
   );
-
-  // if (!chatId) {
-  //   console.warn("No chat ID found, trying to retrieve...");
-  //   const chatsRef = collection(db, "chats");
-  //   const q = query(
-  //     chatsRef,
-  //     where("createdBy.userId", "==", userData.userId)
-  //   );
-  //   const querySnapshot = await getDocs(q);
-
-  //   if (!querySnapshot.empty) {
-  //     setChatId(querySnapshot.docs[0].id);
-  //   } else if (chatId == null) {
-  //     const uuid = uuid4();
-  //     setChatId(uuid);
-  //     localStorage.setItem("chatid", JSON.stringify(uuid));
-  //   }
 }
 
 export default App;

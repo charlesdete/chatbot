@@ -27,7 +27,7 @@ function Navbar() {
         <CustomLink to="/Dashboard">User Profile</CustomLink>
 
         {/* Show History only if user is an AGENT */}
-        {userRole === "AGENT" && <CustomLink to="/history">History</CustomLink>}
+        {userRole === "Agent" && <CustomLink to="/history">History</CustomLink>}
 
         <CustomLink to="/Signup">Sign In </CustomLink>
         <CustomLink onClick={toggleTheme}>

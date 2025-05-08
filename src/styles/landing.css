@@ -1,10 +1,3 @@
-* {
-  box-sizing: border-box;
-  padding-top: 20px;
-  padding-bottom: 20px;
-  margin: 0;
-}
-
 h1 {
   font-size: 40px;
   font-weight: 700;
@@ -12,10 +5,7 @@ h1 {
   justify-content: center;
   align-items: center;
 }
-.space-container {
-  padding-top: 50px;
-  padding-bottom: 60px;
-}
+
 .space {
   width: 1000px;
   height: 500px;

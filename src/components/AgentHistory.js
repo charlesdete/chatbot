@@ -5,7 +5,7 @@ import {
   orderBy,
   getDocs,
   onSnapshot,
-  where,
+  limit,
 } from "@firebase/firestore";
 import { db } from "../firebase";
 import "../styles/history.css";
@@ -14,53 +14,36 @@ export default function AgentHistory() {
   const [chatId, setChatId] = useState(null);
   const [mergedData, setMergedData] = useState({ messages: [] });
   const [loading, setLoading] = useState(false);
+  const [text, setText] = useState("");
+  const [sender, setSender] = useState("");
+  const [time, setTime] = useState("");
+  const [email, setEmail] = useState("");
 
   // 🔹 Fetch chat ID based on logged-in user
   useEffect(() => {
-    const fetchChats = async () => {
-      try {
-        const userData = JSON.parse(localStorage.getItem("user"));
-        if (!userData || !userData.userId) {
-          console.warn("User ID not found in localStorage.");
-          return;
-        }
+    const fetchChat = async () => {
+      const chatsRef = collection(db, "chats");
+      const oldestChatQuery = query(
+        chatsRef,
+        orderBy("createdAt", "asc"),
+        limit(1)
+      );
 
-        console.log("Fetching chats for User ID:", userData.userId);
+      const snapshot = await getDocs(oldestChatQuery);
 
-        // Query to get chats for the logged-in user
-        const q = query(
-          collection(db, "chats"),
-          where("createdBy.userId", "==", userData.userId) // Use the nested userId
-        );
-
-        const querySnapshot = await getDocs(q);
-
-        // Check if chats are found
-        if (querySnapshot.empty) {
-          console.warn("No chats found for this user.");
-          return;
-        }
-
-        // Log the fetched documents
-        querySnapshot.forEach((doc) => {
-          console.log(doc.id, " => ", doc.data());
-        });
-
-        // Get the first chat document (you may want to adjust this logic if needed)
-        const latestChatDoc = querySnapshot.docs[0];
-        const latestChat = latestChatDoc.data(); // Get chat data
-
-        setChatId(latestChatDoc.id);
-        setLoading(true);
-        console.log("Chat ID:", latestChatDoc.id);
-      } catch (error) {
-        console.error("Error fetching chats:", error);
+      if (!snapshot.empty) {
+        const chat = snapshot.docs[0];
+        console.log("Topmost (oldest) chat:", chat.id, chat.data());
+        setChatId(snapshot.docs[0].id);
+        return chat;
+      } else {
+        console.log("No chats found");
+        return null;
       }
     };
 
-    fetchChats(); // Call fetchChats when component mounts
+    fetchChat();
   }, []);
-
   console.log(chatId);
 
   // 🔹 Fetch messages linked to the chat ID
@@ -103,38 +86,65 @@ export default function AgentHistory() {
   }, [chatId]);
 
   const userData = JSON.parse(localStorage.getItem("user"));
+  function handleClick(message) {
+    setText(message.text);
+    setSender(userData.firstName);
+    setEmail(userData.emailAddress);
+    setTime(
+      message.timestamp?.seconds
+        ? new Date(message.timestamp.seconds * 1000).toLocaleString()
+        : "No timestamp"
+    );
+  }
   return (
-    <div className="history-wrapper">
-      <div className="output">
-        <h5>Chat History</h5>
-        {mergedData.messages.length > 0 ? (
-          <div className="list-group">
-            {mergedData.messages.map((message) => (
-              <a
-                key={message.id}
-                href="#"
-                className="list-group-item list-group-item-action "
-              >
-                <div className="d-block w-600 justify-content-between">
-                  <h5 className="mb-1">{message.text}</h5>
-                  <small>
-                    {message.timestamp?.seconds
-                      ? new Date(
-                          message.timestamp.seconds * 1000
-                        ).toLocaleString()
-                      : "No timestamp"}
-                  </small>
-                </div>
-                <p className="mb-1">{userData.firstName || "Unknown sender"}</p>
-              </a>
-            ))}
+    <>
+      <div className="agent">
+        <div className="history-wrapper">
+          <h4>Chat History</h4>
+
+          {mergedData.messages.length > 0 ? (
+            <div className="output">
+              {mergedData.messages.map((message) => (
+                <a key={message.id} onClick={() => handleClick(message)}>
+                  <div className="output-content">
+                    <h5>{userData.firstName || "Unknown sender"}</h5>
+                    <small>
+                      {message.timestamp?.seconds
+                        ? new Date(
+                            message.timestamp.seconds * 1000
+                          ).toLocaleString()
+                        : "No timestamp"}
+                    </small>
+
+                    <p>{message.text}</p>
+                  </div>
+                </a>
+              ))}
+            </div>
+          ) : (
+            <p>
+              {loading
+                ? "loading chat history..."
+                : "No chat history available"}
+            </p>
+          )}
+        </div>
+
+        {/* new div to display the chats when clicked one */}
+
+        <div className="display">
+          <div className="display-container">
+            <div className="display-text">
+              <div className="display-content">
+                <h5 id="h5">{text}</h5>
+                <h3 id="h3">{sender}</h3>
+                <p id="p">{email}</p>
+                <small id="small">{time}</small>
+              </div>
+            </div>
           </div>
-        ) : (
-          <p>
-            {loading ? "loading chat history..." : "No chat history available"}
-          </p>
-        )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }

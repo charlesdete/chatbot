@@ -36,56 +36,6 @@ export default function User() {
     if (!userData?.userId || !userData.role) return;
 
     const fetchChat = async () => {
-      // if (userData.role === "CUSTOMER") {
-      //   const customerChatsQuery = query(
-      //     collection(db, "chats"),
-      //     where("createdBy.userId", "==", userData.userId)
-      //   );
-      //   const snapshot = await getDocs(customerChatsQuery);
-      //   if (!snapshot.empty) {
-      //     setChatId(snapshot.docs[0].id); // use existing chat
-      //   } else {
-      //     const newChatId = uuid4();
-      //     await setDoc(doc(db, "chats", newChatId), {
-      //       createdBy: {
-      //         userId: userData.userId,
-      //         firstName: userData.firstName,
-      //         lastName: userData.lastName,
-      //         role: userData.role,
-      //         photoUrl: userData.photoUrl,
-      //       },
-      //       agentInfo: null,
-      //       status: "UNASSIGNED",
-      //       createdAt: Timestamp.now(),
-      //     });
-      //     setChatId(newChatId);
-      //   }
-      // }
-      // // 2. AGENT: find unassigned chat and join
-      // if (userData.role === "AGENT") {
-      //   const unassignedChatsQuery = query(
-      //     collection(db, "chats"),
-      //     where("createdBy.userId", "==", userData.userId)
-      //   );
-      //   const snapshot = await getDocs(unassignedChatsQuery);
-      //   if (!snapshot.empty) {
-      //     const targetChat = snapshot.docs[0];
-      //     const chatRef = doc(db, "chats", targetChat.id);
-      //     // Assign agent to chat
-      //     await updateDoc(chatRef, {
-      //       agentInfo: {
-      //         agentId: userData.userId,
-      //         firstName: userData.firstName,
-      //         lastName: userData.lastName,
-      //         startTime: Timestamp.now(),
-      //       },
-      //       status: "ASSIGNED",
-      //     });
-      //     setChatId(targetChat.id);
-      //   } else {
-      //     console.warn("No unassigned chats found.");
-      //   }
-      // }
       const chatsRef = collection(db, "chats");
       const oldestChatQuery = query(
         chatsRef,

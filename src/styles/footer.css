@@ -1,8 +1,9 @@
 .footer-container {
-  position: relative;
+  position: absolute;
   bottom: 0;
   border-top: 1px solid #474747;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  width: 100%;
 }
 .footer-content {
   padding: 3px;

@@ -17,7 +17,6 @@ export const ThemeProvider = ({ children }) => {
       document.body.style.color = "#000000";
     } else {
       document.body.style.backgroundColor = "#000000";
-
       document.body.style.color = "#ffffff";
     }
   }, [theme]);
